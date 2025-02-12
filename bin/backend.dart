@@ -12,6 +12,7 @@ class Service {
   Handler get handler {
     final route = Router();
     // my comment here
+    // new comment
 
     return route;
   }
