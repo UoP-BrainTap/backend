@@ -1,19 +1,38 @@
+import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart';
+import 'routes/auth.route.dart';
+import 'middleware/body.middleware.dart';
+import 'middleware/db.middleware.dart';
 
 void main() async {
-  var handler = const Pipeline().addMiddleware(logRequests()).addHandler(handler);
+  final db = await Connection.open(
+    Endpoint(
+      host: 'braintap-postgres.postgres.database.azure.com',
+      database: 'braintap',
+      username: 'ben',
+      password: 'Yc7weLX5!hff5a#c2mJB'
+    )
+  );
+  
   var service = Service();
-  var server = await shelf_io.serve(service.handler, 'localhost', 8080);
+  var handler = Pipeline()
+    .addMiddleware(logRequests())
+    .addMiddleware(DBMiddleware(db).middleware)
+    .addMiddleware(BodyMiddleware().middleware)
+    .addHandler(service.handler);
+  var server = await shelf_io.serve(handler, 'localhost', 8080);
 }
 
 class Service {
   Handler get handler {
-    final route = Router();
-    // my comment here
-    // new comment
+    final root = Router();
+    final apiRouterV1 = Router();
 
-    return route;
+    apiRouterV1.mount("/auth", Auth().router.call);
+
+    root.mount("/api/v1", apiRouterV1.call);
+    return root.call;
   }
 }
