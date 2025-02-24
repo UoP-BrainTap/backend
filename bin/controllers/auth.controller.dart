@@ -12,9 +12,9 @@ class AuthController {
   static Future<Response> signup(Request request) async {
     var db = Database.db;
     var json = request.context['json'] as Map;
-    var email = json['email'];
 
     // validate parameters
+    var email = json['email'];
     if (email is! String || !Validators.validateEmail(email)) {
       return Response.badRequest(body: 'Invalid email');
     }
@@ -42,9 +42,9 @@ class AuthController {
     }
 
     // hash password and generate access token
-    final String hashed = BCrypt.hashpw('password', BCrypt.gensalt());
+    final String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
+    print(hashed);
     final String accessToken = _generateAccessToken();
-    print(accessToken.length);
 
     // insert user
     var insertUserResponse = await db.execute(
@@ -70,6 +70,55 @@ class AuthController {
     }
     return Response.ok(jsonEncode({
       'id': insertUserResponseMap['id'],
+      'accessToken': accessToken,
+    }));
+  }
+
+  static Future<Response> login(Request request) async {
+    var db = Database.db;
+    var json = request.context['json'] as Map;
+
+    // validate parameters
+    var email = json['email'];
+    if (email is! String || !Validators.validateEmail(email)) {
+      return Response.badRequest(body: 'Invalid email');
+    }
+    var password = json['password'];
+    if (password is! String) {
+      return Response.badRequest(body: 'Invalid password');
+    }
+
+    // fetch user from database
+    final fetchPasswordResponse = await db.execute(
+        Sql.named("SELECT id, role, password_hash FROM users WHERE email = @email LIMIT 1;"),
+        parameters: {
+          'email': email,
+        }
+    );
+    if (fetchPasswordResponse.isEmpty) {
+      return Response.notFound('User not found');
+    }
+    final fetchPasswordResponseMap = fetchPasswordResponse.first.toColumnMap();
+
+    // check password
+    final passwordHash = fetchPasswordResponseMap['password_hash'];
+    if (!BCrypt.checkpw(password, passwordHash)) {
+      return Response.unauthorized('Incorrect password');
+    }
+
+    // generate access token and update
+    final accessToken = _generateAccessToken();
+    await db.execute(
+        Sql.named("UPDATE users SET access_token = @access_token WHERE id = @id;"),
+        parameters: {
+          'access_token': accessToken,
+          'id': fetchPasswordResponseMap['id'],
+        }
+    );
+
+    return Response.ok(jsonEncode({
+      'id': fetchPasswordResponseMap['id'],
+      'role': fetchPasswordResponseMap['role'].asString,
       'accessToken': accessToken,
     }));
   }

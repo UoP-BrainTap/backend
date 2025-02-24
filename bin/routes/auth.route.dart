@@ -10,6 +10,10 @@ class Auth {
       return AuthController.signup(request);
     });
 
+    router.post('/login', (Request request) {
+      return AuthController.login(request);
+    });
+
     return router;
   }
 }

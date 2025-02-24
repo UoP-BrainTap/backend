@@ -7,7 +7,12 @@ class BodyMiddleware {
     return (Handler innerHandler) {
       return (Request request) async {
         final body = await request.readAsString();
-        final json = jsonDecode(body);
+        late final Map json;
+        try {
+          json = jsonDecode(body);
+        } catch (e) {
+          return Response.badRequest(body: 'Invalid JSON');
+        }
         return innerHandler(request.change(
           context: {
             'json': json,
