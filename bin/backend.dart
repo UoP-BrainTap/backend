@@ -3,7 +3,9 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart';
 import 'routes/auth.route.dart';
+import 'routes/questions.route.dart';
 import 'middleware/body.middleware.dart';
+import 'middleware/auth.middleware.dart';
 
 void main() async {
   await Database.connect();
@@ -21,9 +23,14 @@ class Service {
     final root = Router();
     final apiRouterV1 = Router();
 
-    root.mount("/auth", Auth().router.call);
+    apiRouterV1.mount("/questions", Questions().router.call);
 
-    root.mount("/api/v1", apiRouterV1.call);
+    root.mount("/auth", Auth().router.call);
+    // authenticated routes
+    root.mount("/api/v1", Pipeline()
+        .addMiddleware(AuthMiddleware().middleware)
+        .addHandler(apiRouterV1.call));
+
     return root.call;
   }
 }
