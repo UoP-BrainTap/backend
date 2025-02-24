@@ -3,6 +3,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart';
 import 'routes/auth.route.dart';
+import 'routes/quiz.route.dart';
 import 'middleware/body.middleware.dart';
 
 void main() async {
@@ -22,6 +23,7 @@ class Service {
     final apiRouterV1 = Router();
 
     root.mount("/auth", Auth().router.call);
+    root.mount("/quiz", QuizRoute().router.call);
 
     root.mount("/api/v1", apiRouterV1.call);
     return root.call;
