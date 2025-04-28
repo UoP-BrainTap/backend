@@ -1,6 +1,7 @@
 import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
+import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'routes/auth.route.dart';
 import 'routes/questions.route.dart';
@@ -14,6 +15,7 @@ void main() async {
   var handler = Pipeline()
     .addMiddleware(logRequests())
     .addMiddleware(BodyMiddleware().middleware)
+    .addMiddleware(corsHeaders())
     .addHandler(service.handler);
   var server = await shelf_io.serve(handler, 'localhost', 8080);
 }

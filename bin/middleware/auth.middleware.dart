@@ -42,7 +42,7 @@ class AuthMiddleware {
           "user": {
             "authenticated": true,
             "id": user["id"],
-            "role": user["role"],
+            "role": user["role"].asString,
           },
         }));
       };
