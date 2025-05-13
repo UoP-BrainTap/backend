@@ -10,12 +10,19 @@ class Questions {
       return QuestionController.getUserQuestions(request, id);
     });
 
+    router.get("/<id>", (Request request, String id) {
+      return QuestionController.getQuestionData(request, id);
+    });
+
+    router.delete("/<id>", (Request request, String id) {
+      return QuestionController.deleteQuestion(request, id);
+    });
+
     // multiple choice question options
     router.post('/multiple-choice/',(Request request) {
       return QuestionController.createMultipleChoiceQuestion(request);
     });
 
-    // (unauthenticated) route
     router.get('/multiple-choice/<id>/options', (Request request, String id) {
       return QuestionController.getMultipleChoiceQuestionOptions(request, id);
     });

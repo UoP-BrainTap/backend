@@ -5,6 +5,7 @@ import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'routes/auth.route.dart';
 import 'routes/questions.route.dart';
+import 'routes/session.route.dart';
 import 'middleware/body.middleware.dart';
 import 'middleware/auth.middleware.dart';
 
@@ -26,8 +27,11 @@ class Service {
     final apiRouterV1 = Router();
 
     apiRouterV1.mount("/questions", Questions().router.call);
+    apiRouterV1.mount("/sessions", Sessions().router.call);
 
     root.mount("/auth", Auth().router.call);
+    root.mount("/ws", Sessions().socket);
+
     // authenticated routes
     root.mount("/api/v1", Pipeline()
         .addMiddleware(AuthMiddleware().middleware)

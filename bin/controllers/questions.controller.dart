@@ -38,6 +38,56 @@ class QuestionController {
     return Response.ok(jsonEncode(questionsMapped));
   }
 
+  static Future<Response> getQuestionData(Request request, String id) async {
+    var questionId = int.parse(id);
+    var db = Database.db;
+    var question = await db.execute(Sql.named(
+        "SELECT id, question, question_type "
+        "FROM questions "
+        "WHERE id = @id;"
+    ),
+    parameters: {
+      'id': questionId
+    });
+    if (question.isEmpty) {
+      return Response.notFound('Question not found');
+    }
+    var questionMapped = question.first.toColumnMap();
+    questionMapped['question_type'] = questionMapped['question_type'].asString;
+    return Response.ok(jsonEncode(questionMapped));
+  }
+
+  static Future<Response> deleteQuestion(Request request, String id) async {
+    var user = request.context['user'] as Map;
+    var userId = user['id'];
+    if (!user['authenticated']) {
+      return Response.forbidden('User not authenticated');
+    }
+    var db = Database.db;
+    var authResponse = await db.execute(Sql.named(
+        "SELECT id FROM questions "
+        "WHERE id = @id "
+        "AND owner_id = @owner_id "
+        "AND deleted = FALSE;",
+    ), parameters: {
+      'id': id,
+      'owner_id': userId
+    });
+    if (authResponse.isEmpty) {
+      return Response.forbidden('User not authorized');
+    }
+    await db.execute(Sql.named(
+        "UPDATE questions "
+        "SET deleted = TRUE "
+        "WHERE id = @id;",
+    ), parameters: {
+      'id': id
+    });
+    return Response.ok(jsonEncode({
+      'message': 'Question deleted successfully'
+    }));
+  }
+
   static Future<Response> createMultipleChoiceQuestion(Request request) async {
     var json = request.context['json'] as Map;
     var user = request.context['user'] as Map;
