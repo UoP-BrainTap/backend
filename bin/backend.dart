@@ -42,10 +42,19 @@ class Service {
 }
 
 class Database {
-  static late Connection db;
+  static Connection? _db;
 
-  static Future<void> connect() async {
-    db = await Connection.open(
+  static Future<Connection> get db async {
+    if (_db == null) {
+      _db = await connect();
+      return _db!;
+    } else {
+      return _db!;
+    }
+  }
+
+  static Future<Connection> connect() {
+     return Connection.open(
         Endpoint(
             host: 'braintap-postgres.postgres.database.azure.com',
             database: 'braintap',

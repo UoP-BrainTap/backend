@@ -5,7 +5,7 @@ import './question-structs.dart';
 
 class QuestionAPI {
   static Future<Question> getQuestion(int id) async {
-    var db = Database.db;
+    var db = await Database.db;
     var questionData = await db.execute(
         Sql.named(
             "SELECT id, question, question_type, owner_id "
@@ -24,7 +24,7 @@ class QuestionAPI {
   }
 
   static Future<Question<QuestionData>> getQuestionData(Question question) async {
-    var db = Database.db;
+    var db = await Database.db;
     if (question.questionType == QuestionType.multipleChoice) {
       var questionData = await db.execute(
           Sql.named(

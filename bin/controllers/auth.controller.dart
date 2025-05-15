@@ -10,7 +10,7 @@ import '../utils/validators.dart';
 
 class AuthController {
   static Future<Response> signup(Request request) async {
-    var db = Database.db;
+    var db = await Database.db;
     var json = request.context['json'] as Map;
 
     // validate parameters
@@ -21,6 +21,12 @@ class AuthController {
     var password = json['password'];
     if (password is! String) {
       return Response.badRequest(body: 'Invalid password');
+    }
+    if (password.length < 8) {
+      return Response.badRequest(body: 'Password must be at least 8 characters');
+    }
+    if (!Validators.validatePassword(password)) {
+      return Response.badRequest(body: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character');
     }
     var accountType = json['accountType'];
     if (accountType is! String ||
@@ -75,7 +81,7 @@ class AuthController {
   }
 
   static Future<Response> login(Request request) async {
-    var db = Database.db;
+    var db = await Database.db;
     var json = request.context['json'] as Map;
 
     // validate parameters

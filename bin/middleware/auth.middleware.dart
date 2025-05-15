@@ -16,7 +16,7 @@ class AuthMiddleware {
   Middleware get middleware {
     return (Handler innerHandler) {
       return (Request request) async {
-        var db = Database.db;
+        var db = await Database.db;
         final authorizationHeader = request.headers['authorization'];
         if (authorizationHeader == null || authorizationHeader.isEmpty || !authorizationHeader.startsWith("Bearer ")) {
           return innerHandler(request.change(context: _unauthenticated));

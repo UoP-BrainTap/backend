@@ -13,7 +13,7 @@ class QuestionController {
     } else if (userId != int.parse(id)) {
       return Response.forbidden('User not authorized');
     }
-    var db = Database.db;
+    var db = await Database.db;
 
     var questions = await db.execute(Sql.named(
         "SELECT id, question, question_type "
@@ -40,7 +40,7 @@ class QuestionController {
 
   static Future<Response> getQuestionData(Request request, String id) async {
     var questionId = int.parse(id);
-    var db = Database.db;
+    var db = await Database.db;
     var question = await db.execute(Sql.named(
         "SELECT id, question, question_type "
         "FROM questions "
@@ -63,7 +63,7 @@ class QuestionController {
     if (!user['authenticated']) {
       return Response.forbidden('User not authenticated');
     }
-    var db = Database.db;
+    var db = await Database.db;
     var authResponse = await db.execute(Sql.named(
         "SELECT id FROM questions "
         "WHERE id = @id "
@@ -124,7 +124,7 @@ class QuestionController {
         return Response.badRequest(body: 'Option is-correct is required');
       }
     }
-    var db = Database.db;
+    var db = await Database.db;
     var userId = user['id'];
 
     // add base question
@@ -160,7 +160,7 @@ class QuestionController {
 
   static Future<Response> getMultipleChoiceQuestionOptions(Request request, String id) async {
     var questionID = int.parse(id);
-    var db = Database.db;
+    var db = await Database.db;
 
     var options = await db.execute(Sql.named(
         "SELECT id, option_text, is_correct "

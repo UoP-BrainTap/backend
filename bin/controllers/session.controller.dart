@@ -53,7 +53,7 @@ class Session {
   }
 
   Future<void> init() async {
-    var db = Database.db;
+    var db = await Database.db;
     await db.execute(
         Sql.named("UPDATE sessions "
             "SET active = FALSE "
@@ -79,7 +79,7 @@ class Session {
         throw Exception('User already joined the session');
       }
     }
-    var db = Database.db;
+    var db = await Database.db;
     var userData = await db.execute(
         Sql.named(
             "INSERT INTO session_members (session_id, user_id, anonymous_id) "
@@ -97,9 +97,9 @@ class Session {
     return sessionUser;
   }
 
-  void setQuestionId(int id) {
+  void setQuestionId(int id) async {
     questionId = id;
-    var db = Database.db;
+    var db = await Database.db;
     db.execute(
         Sql.named("INSERT INTO session_question (session_id, question_id) "
             "VALUES (@sessionId, @questionId);"),
@@ -126,7 +126,7 @@ class Session {
       }
     }
 
-    var db = Database.db;
+    var db = await Database.db;
     var answerData = await db.execute(
         Sql.named(
             "INSERT INTO session_answers (session_id, session_member_id, question_id) "
@@ -153,8 +153,8 @@ class Session {
     }));
   }
 
-  void closeSession() {
-    var db = Database.db;
+  void closeSession() async {
+    var db = await Database.db;
     db.execute(
         Sql.named("UPDATE sessions "
             "SET active = FALSE "
