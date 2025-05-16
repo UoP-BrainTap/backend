@@ -49,7 +49,6 @@ class AuthController {
 
     // hash password and generate access token
     final String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
-    print(hashed);
     final String accessToken = _generateAccessToken();
 
     // insert user

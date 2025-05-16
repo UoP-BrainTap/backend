@@ -166,7 +166,6 @@ class Session {
   void broadcastMessage(String message) {
     for (var user in users) {
       if (user.socket != null) {
-        print("SENDING TO USER");
         user.socket!.sink.add(message);
       }
     }
@@ -188,7 +187,6 @@ class SessionController {
   static var socket = webSocketHandler((socket, _) {
     socket.stream.listen((message) {
       var data = jsonDecode(message);
-      print(data);
       if (data['type'] == 'join') {
         var code = data['session_code'];
         var sessionUserId = data['session_user_id'];
@@ -299,7 +297,6 @@ class SessionController {
     }
     var session = _getSession(int.parse(code));
     if (session == null) {
-      print('session is null');
       return Response.notFound('Session not found');
     }
     if (!session.active) {

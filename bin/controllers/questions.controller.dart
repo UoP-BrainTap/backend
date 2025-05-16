@@ -34,7 +34,6 @@ class QuestionController {
       };
     }).toList();
 
-    print(questionsMapped);
     return Response.ok(jsonEncode(questionsMapped));
   }
 

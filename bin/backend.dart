@@ -59,7 +59,7 @@ class Database {
             host: 'braintap-postgres.postgres.database.azure.com',
             database: 'braintap',
             username: 'ben',
-            password: 'Yc7weLX5!hff5a#c2mJB'
+            password: 'BC^7L5VQhN@KMEa6eT4y'
         )
     );
   }
