@@ -8,7 +8,22 @@ import 'package:shelf/shelf.dart';
 import '../backend.dart';
 import '../utils/validators.dart';
 
+/// Handles all user authentication and authorization
 class AuthController {
+  /// Sign up a new user
+  ///
+  /// Request data:
+  /// {
+  ///   "email": "test@gmai.com,
+  ///   "password": "password123",
+  ///   "accountType": "user"
+  /// }
+  ///
+  /// Response data:
+  /// {
+  ///  "id": 1,
+  ///  "accessToken": "token"
+  /// }
   static Future<Response> signup(Request request) async {
     var db = await Database.db;
     var json = request.context['json'] as Map;
@@ -79,6 +94,20 @@ class AuthController {
     }));
   }
 
+  /// Login a user
+  ///
+  /// Request data:
+  /// {
+  ///   "email": "test@gmail.com"
+  ///   "password": "password123"
+  /// }
+  ///
+  /// Response data:
+  /// {
+  ///  "id": 1,
+  ///  "role": "user",
+  ///  "accessToken": "token"
+  /// }
   static Future<Response> login(Request request) async {
     var db = await Database.db;
     var json = request.context['json'] as Map;
@@ -128,7 +157,7 @@ class AuthController {
     }));
   }
 
-  /// Generate a secure access token
+  /// Generate a secure access token 32 chars long
   static String _generateAccessToken() {
     const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     final random = Random.secure();

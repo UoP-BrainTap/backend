@@ -41,9 +41,12 @@ class Service {
   }
 }
 
+/// Handles the database connection
 class Database {
   static Connection? _db;
 
+  /// Returns a singleton instance of the database connection. If the connection
+  /// is already established, it returns the existing connection.
   static Future<Connection> get db async {
     if (_db == null) {
       _db = await connect();
@@ -53,6 +56,7 @@ class Database {
     }
   }
 
+  /// Opens a new connection to the database using the provided credentials.
   static Future<Connection> connect() {
      return Connection.open(
         Endpoint(

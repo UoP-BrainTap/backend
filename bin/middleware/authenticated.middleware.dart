@@ -1,5 +1,6 @@
 import 'package:shelf/shelf.dart';
 
+/// A middleware that checks if the user is authenticated. Denies access if not.
 class AuthenticatedMiddleware {
   Middleware get middleware {
     return (Handler innerHandler) {

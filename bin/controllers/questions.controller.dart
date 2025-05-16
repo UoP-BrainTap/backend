@@ -4,9 +4,26 @@ import 'package:postgres/postgres.dart';
 import 'package:shelf/shelf.dart';
 import '../backend.dart';
 
+/// Handles question-related requests
 class QuestionController {
+
+  /// Returns a list of questions for the requested user. Must be authenticated
+  /// and can only get their own questions. Must be authenticated
+  ///
+  /// [id] is the user ID that you want to get questions for
+  ///
+  /// response data:
+  /// [
+  ///  {
+  ///   "id": 1,
+  ///   "question": "What is your name?",
+  ///   "question_type": "multiple_choice"
+  ///   },
+  ///   ...
+  /// ]
   static Future<Response> getUserQuestions(Request request, String id) async {
     var user = request.context['user'] as Map;
+    // Check if user is authenticated
     var userId = user['id'];
     if (!user['authenticated']) {
       return Response.forbidden('User not authenticated');
@@ -15,6 +32,7 @@ class QuestionController {
     }
     var db = await Database.db;
 
+    // Get questions for the user
     var questions = await db.execute(Sql.named(
         "SELECT id, question, question_type "
         "FROM questions "
@@ -25,6 +43,7 @@ class QuestionController {
       'id': userId
     });
 
+    // map questions to json for response
     var questionsMapped = questions.map((row) {
       var columns = row.toColumnMap();
       return {
@@ -37,9 +56,19 @@ class QuestionController {
     return Response.ok(jsonEncode(questionsMapped));
   }
 
+  /// Get question meta data by [id]
+  /// This does not include the questions option data
+  ///
+  /// Response data:
+  /// {
+  ///  "id": 1,
+  ///  "question": "What is your name?",
+  ///  "question_type": "multiple_choice"
+  ///  }
   static Future<Response> getQuestionData(Request request, String id) async {
     var questionId = int.parse(id);
     var db = await Database.db;
+    // fetch question data from db
     var question = await db.execute(Sql.named(
         "SELECT id, question, question_type "
         "FROM questions "
@@ -51,17 +80,20 @@ class QuestionController {
     if (question.isEmpty) {
       return Response.notFound('Question not found');
     }
+    // map data for response
     var questionMapped = question.first.toColumnMap();
     questionMapped['question_type'] = questionMapped['question_type'].asString;
     return Response.ok(jsonEncode(questionMapped));
   }
 
+  /// Deletes a question by [id]. Must be authenticated
   static Future<Response> deleteQuestion(Request request, String id) async {
     var user = request.context['user'] as Map;
     var userId = user['id'];
     if (!user['authenticated']) {
       return Response.forbidden('User not authenticated');
     }
+    // check if if the user is the owner of the question
     var db = await Database.db;
     var authResponse = await db.execute(Sql.named(
         "SELECT id FROM questions "
@@ -75,6 +107,7 @@ class QuestionController {
     if (authResponse.isEmpty) {
       return Response.forbidden('User not authorized');
     }
+    // delete the question
     await db.execute(Sql.named(
         "UPDATE questions "
         "SET deleted = TRUE "
@@ -87,15 +120,39 @@ class QuestionController {
     }));
   }
 
+  /// Creates a multiple choice question
+  ///
+  /// Request body:
+  /// {
+  /// "question-title": "What is your name?",
+  /// "options": [
+  ///   {
+  ///   "option-text": "Option 1",
+  ///   "is-correct": true
+  ///   },
+  ///   {
+  ///   "option-text": "Option 2",
+  ///   "is-correct": false
+  ///   }
+  ///  ]
+  /// }
+  ///
+  /// Response data:
+  /// {
+  ///   "question_id": 1,
+  /// }
   static Future<Response> createMultipleChoiceQuestion(Request request) async {
     var json = request.context['json'] as Map;
     var user = request.context['user'] as Map;
+
+    // authentication check
     if (!user['authenticated']) {
       return Response.forbidden('User not authenticated');
     }
     if (user['role'] != 'lecturer') {
       return Response.forbidden('User not authorized');
     }
+    // validate request body and sanitize
     String? title = json['question-title'];
     if (title == null || title.isEmpty) {
       return Response.badRequest(body: 'Question title is required');
@@ -157,6 +214,21 @@ class QuestionController {
     }));
   }
 
+  /// Get multiple choice question options by [id]
+  ///
+  /// Response data:
+  /// [
+  ///  {
+  ///  "id": 1,
+  ///  "option_text": "Option 1",
+  ///  "is_correct": true
+  ///  },
+  ///  {
+  ///  "id": 2,
+  ///  "option_text": "Option 2",
+  ///  "is_correct": false
+  ///  }
+  /// ]
   static Future<Response> getMultipleChoiceQuestionOptions(Request request, String id) async {
     var questionID = int.parse(id);
     var db = await Database.db;

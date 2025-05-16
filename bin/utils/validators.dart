@@ -1,4 +1,5 @@
 class Validators {
+  /// returns true if the [value] is an email
   static bool validateEmail(String value) {
     if (value.isEmpty) {
       return false;
@@ -7,10 +8,12 @@ class Validators {
     return emailRegex.hasMatch(value);
   }
 
+  /// returns true if the [value] is a valid account type
   static bool validateAccountType(String value) {
     return value == 'admin' || value == 'lecturer' || value == 'student';
   }
 
+  /// returns true if the [value] is a valid and complex password
   static bool validatePassword(String value) {
     if (value.isEmpty) {
       return false;
