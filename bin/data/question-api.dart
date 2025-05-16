@@ -3,7 +3,9 @@ import 'package:postgres/postgres.dart';
 import '../backend.dart';
 import './question-structs.dart';
 
+/// A utility class to handle database operations related to questions.
 class QuestionAPI {
+  /// Fetches the [Question] object with the given [id] from the database.
   static Future<Question> getQuestion(int id) async {
     var db = await Database.db;
     var questionData = await db.execute(
@@ -23,6 +25,8 @@ class QuestionAPI {
     return question;
   }
 
+  /// Fetches attaches the appropriate [QuestionData] to the given [question]
+  /// object.
   static Future<Question<QuestionData>> getQuestionData(Question question) async {
     var db = await Database.db;
     if (question.questionType == QuestionType.multipleChoice) {
