@@ -60,10 +60,10 @@ class Database {
   static Future<Connection> connect() {
      return Connection.open(
         Endpoint(
-            host: 'braintap-postgres.postgres.database.azure.com',
+            host: 'postgres.database.azure.com',
             database: 'braintap',
-            username: 'ben',
-            password: 'BC^7L5VQhN@KMEa6eT4y'
+            username: 'user',
+            password: 'password'
         )
     );
   }
